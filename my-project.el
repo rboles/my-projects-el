@@ -1,17 +1,31 @@
 ;;; my-project.el --- Sugar for Emacs projects
 
-;;
-
+;; Author: Shawn Boles
+;; Version 0.1
+;; URL: http://github.com/rboles/my-projects-el
 ;; This file is not part of GNU Emacs
 
 ;;; Commentary:
 
+;; Opens project buffers. See the example ``my-project-alist'' below.
+;; The project alist defines project spaces. Each space is opened in a
+;; buffer.
+;;
+;; Load the package with:
+;;
+;; (require 'my-project)
+;;
+;; To open a project:
+;;
 ;; M-x my-project
+
+;;; Code:
 
 (defvar my-project-alist nil
   "List of project spaces")
 
-; Temporary project list for testing
+; Example project list for testing
+; Override my-project-alist with your own project list
 (setq my-project-alist
       '(("BrewTools" .
          (:prefix "~/code/Scala/BrewTools"
@@ -43,25 +57,18 @@ match"
   (cdr (assoc name my-project-alist))
   )
 
-(defun my-project-alist-property (name prop &optional val)
+(defun my-project-alist-property (name prop &optional val
+                                       )
   "Returns PROP value associated with project identified by NAME.
 
 If VAL is provided, the project alist property is set to VAL and VAL
 returned."
   (let ((plist (cdr (assoc name my-project-alist)))
-        (tlist r25ws-alist)
         (alist nil)
         (cur nil))
     (if (and plist val)
         (progn
           (setq plist (plist-put plist prop val))
-          (while tlist
-            (setq cur (car tlist))
-            (setq tlist (cdr tlist))
-            (if (string= name (car cur))
-                (push (cons name plist) alist)
-              (push cur alist)))
-          (setq r25ws-alist alist)
           val)
       (plist-get plist prop)))
   )
