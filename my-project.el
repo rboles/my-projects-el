@@ -57,8 +57,7 @@ match"
   (cdr (assoc name my-project-alist))
   )
 
-(defun my-project-alist-property (name prop &optional val
-                                       )
+(defun my-project-alist-property (name prop &optional val)
   "Returns PROP value associated with project identified by NAME.
 
 If VAL is provided, the project alist property is set to VAL and VAL
@@ -78,9 +77,10 @@ returned."
   (interactive)
   (let* ((projects (my-project-alist-names))
          (project (if my-project my-project
-                    (read-string "Project: "
-                                 (car projects)
-                                 (cons 'projects 1))))
+                    (completing-read
+                     "Project: "
+                     (my-project-alist-names)
+                     nil t)))
          (prefix (my-project-alist-property project :prefix))
          (spaces (my-project-alist-property project :spaces))
          (space nil))
