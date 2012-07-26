@@ -18,6 +18,10 @@
 ;; To open a project:
 ;;
 ;; M-x my-project
+;;
+;; To open a project space:
+;;
+;; M-x my-project-space
 
 ;;; Code:
 
@@ -72,8 +76,28 @@ returned."
       (plist-get plist prop)))
   )
 
+(defun my-project-alist-space-names ()
+  "Returns a list all space names across all projects.
+
+The space name is a concatenation of ``project-name''-``space-name''-
+same as the buffer name created for the space"
+  (let ((projects (my-project-alist-names))
+        (project nil)
+        (names nil))
+    (while projects
+      (setq project (car projects))
+      (setq projects (cdr projects))
+      (let ((spaces (my-project-alist-property project :spaces))
+            (space nil))
+        (while spaces
+          (setq space (car spaces))
+          (setq spaces (cdr spaces))
+          (push (concat project "-" (car space)) names))))
+    names)
+  )
+
 (defun my-project (&optional my-project)
-  "Opens a workspace"
+  "Opens a project workspace"
   (interactive)
   (let* ((projects (my-project-alist-names))
          (project (if my-project my-project
@@ -87,12 +111,42 @@ returned."
     (while spaces
       (setq space (car spaces))
       (setq spaces (cdr spaces))
-      (message "Opening project %s" project)
+      (message "Opening project: %s" project)
       (let ((buf-name (car space))
             (buf-path (car (cdr space))))
         (find-file (concat prefix buf-path))
         (rename-buffer (concat project "-" buf-name))
         )
+      )
+    )
+  )
+
+(defun my-project-space (&optional my-project-space)
+  "Opens a project space"
+  (interactive)
+  (let* ((project-space (if my-project-space my-project-space
+                          (completing-read
+                           "Project space name: "
+                           (my-project-alist-space-names)
+                           nil t)))
+         (project-name (car (split-string project-space "-")))
+         (space-name (car (cdr (split-string project-space "-"))))
+         (prefix (my-project-alist-property project-name :prefix))
+         (spaces (my-project-alist-property project-name :spaces))
+         (space nil)
+         (done nil))
+    (while (and spaces (not done))
+      (setq space (car spaces))
+      (setq spaces (cdr spaces))
+      (message "Car of space: %s" (car space))
+      (if (string= (car space) space-name)
+          (progn
+            (setq done t)
+            (message "Opening project space: %s"
+            (let ((buf-name (car space))
+                  (buf-path (car (cdr space))))
+              (find-file (concat prefix buf-path))
+              (rename-buffer (concat project-name "-" buf-name))))))
       )
     )
   )
